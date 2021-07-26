@@ -21,7 +21,7 @@ import {
   pad,
   sanitizeDateString,
 } from './util'
-
+import { gregorianToJalali } from './util/jdf'
 // Types
 import {
   PropType,
@@ -150,8 +150,15 @@ export default mixins(
         }
 
         const multipleValue = wrapInArray(this.value)
-        const date = multipleValue[multipleValue.length - 1] ||
+        let date = multipleValue[multipleValue.length - 1] ||
           (typeof this.showCurrent === 'string' ? this.showCurrent : `${now.getFullYear()}-${now.getMonth() + 1}`)
+        if (this.locale === 'fa-IR') {
+          const jdate = gregorianToJalali(parseInt((date as string).split('-')[0]),
+            parseInt((date as string).split('-')[1]),
+            parseInt((date as string).split('-')[2] || 1)
+          )
+          date = `${jdate[0]}-${pad(jdate[1])}-${pad(jdate[2])}`
+        }
         return sanitizeDateString(date as string, this.type === 'date' ? 'month' : 'year')
       })(),
     }
